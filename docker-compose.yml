@@ -3,14 +3,18 @@ services:
         # two ways to enable puppeteer:
         # * comment out marked lines, then use this image instead: diygod/rsshub:chromium-bundled
         # * (consumes more disk space and memory) leave everything unchanged
-        image: diygod/rsshub # or ghcr.io/diygod/rsshub
+        # image: diygod/rsshub # or ghcr.io/diygod/rsshub
+        build:
+            context: .
+            dockerfile: Dockerfile
         restart: always
         ports:
             - '1200:1200'
         environment:
             NODE_ENV: production
-            CACHE_TYPE: redis
-            REDIS_URL: 'redis://redis:6379/'
+            CACHE_TYPE: memory
+            # CACHE_TYPE: redis
+            # REDIS_URL: 'redis://redis:6379/'
             PUPPETEER_WS_ENDPOINT: 'ws://browserless:3000' # marked
             PUPPETEER_REAL_BROWSER_SERVICE: 'http://real-browser:3000' # marked
         healthcheck:
