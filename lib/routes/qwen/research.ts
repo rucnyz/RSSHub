@@ -24,6 +24,25 @@ interface ResearchArticle {
     tokenLinks?: string;
 }
 
+interface RetrievalArticle {
+    id: string;
+    type: string;
+    title: string;
+    content: string;
+    path: string;
+    language: string;
+    extra: {
+        introduction?: string;
+        description?: string;
+        tags?: string[];
+        cover_small?: string;
+        date?: string;
+        author?: string;
+        readTime?: number;
+        wordCount?: number;
+    };
+}
+
 const extractExternalLinks = (tokens: Array<Record<string, string>>): Array<{ href: string; label: string }> => {
     const links: Array<{ href: string; label: string }> = [];
     for (const token of tokens) {
@@ -82,14 +101,38 @@ export const route: Route = {
         const validTags = ['Research', 'Open-Source', 'Release'];
         const filterTag = tag && validTags.includes(tag as string) ? tag : undefined;
 
-        const list: ResearchArticle[] = await ofetch('https://qwen.ai/api/page_config', {
-            params: { code: 'research.research-list', language: lang },
-        });
+        const retrievalLang = lang === 'zh-cn' ? 'zh-CN' : 'en-US';
 
-        const filtered = filterTag ? list.filter((item) => item.tags?.includes(filterTag)) : list;
+        const [legacyList, retrievalResponse] = await Promise.all([
+            ofetch<ResearchArticle[]>('https://qwen.ai/api/page_config', {
+                params: { code: 'research.research-list', language: lang },
+            }),
+            ofetch<{ data: { articles: RetrievalArticle[] } }>('https://qwen.ai/api/v2/article/retrieval', {
+                params: { type: 'qwen_ai', language: retrievalLang },
+            }),
+        ]);
 
-        const items = await Promise.all(
-            filtered.map((item) =>
+        const retrievalArticles = retrievalResponse.data?.articles || [];
+        const retrievalPaths = new Set(retrievalArticles.map((a) => a.path));
+
+        // Deduplicate: retrieval articles take priority; legacy articles fill the rest
+        const legacyOnly = legacyList.filter((item) => !retrievalPaths.has(item.id));
+
+        const retrievalItems = retrievalArticles
+            .filter((a) => !filterTag || a.extra?.tags?.includes(filterTag))
+            .map((a) => ({
+                title: a.title,
+                link: `https://qwen.ai/blog?id=${a.path}`,
+                pubDate: a.extra?.date ? parseDate(a.extra.date) : undefined,
+                author: a.extra?.author,
+                category: a.extra?.tags,
+                description: `${a.extra?.cover_small ? `<img src="${a.extra.cover_small}">` : ''}${md.render(a.extra?.introduction || a.extra?.description || '')}`,
+            }));
+
+        const legacyFiltered = filterTag ? legacyOnly.filter((item) => item.tags?.includes(filterTag)) : legacyOnly;
+
+        const legacyItems = await Promise.all(
+            legacyFiltered.map((item) =>
                 cache.tryGet(`qwen:research:${lang}:${item.id}`, async () => {
                     let content = item.introduction || item.description || '';
 
@@ -117,6 +160,12 @@ export const route: Route = {
                 })
             )
         );
+
+        const items = [...retrievalItems, ...legacyItems].sort((a, b) => {
+            const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+            const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+            return db - da;
+        });
 
         const titlePrefix = lang === 'zh-cn' ? 'Qwen 研究' : 'Qwen Research';
         const titleSuffix = filterTag ? ` - ${filterTag}` : '';
