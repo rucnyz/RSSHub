@@ -1765,6 +1765,7 @@ export type RoutePath =
   | `/liveuamap/:region?`
   | `/lkong/forum/:id?/:digest?`
   | `/lkong/thread/:id`
+  | `/lmsys/blog/:category?`
   | `/lmu/jobs`
   | `/locals/content/:community/:option1?/:option2?`
   | `/lofter/collection/:collectionID`
@@ -2943,6 +2944,7 @@ export type RoutePath =
   | `/visionias/newsToday/:filter?`
   | `/visionias/weeklyFocus`
   | `/visualstudio/code/blog`
+  | `/vllm/blog`
   | `/vocus/publication/:id`
   | `/vocus/user/:id`
   | `/vom/featured/:lang?`

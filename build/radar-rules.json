@@ -28866,6 +28866,20 @@
       }
     ]
   },
+  "lmsys.org": {
+    "_name": "LMSYS",
+    ".": [
+      {
+        "title": "Blog",
+        "docs": "https://docs.rsshub.app/routes/programming",
+        "source": [
+          "/blog",
+          "/blog/*"
+        ],
+        "target": "/lmsys/blog"
+      }
+    ]
+  },
   "lmu.de": {
     "_name": "Ludwig Maximilian University of Munich",
     "www": [
@@ -47186,6 +47200,20 @@
           "/"
         ],
         "target": "/visualstudio/code/blog"
+      }
+    ]
+  },
+  "vllm.ai": {
+    "_name": "vLLM",
+    ".": [
+      {
+        "title": "Blog",
+        "docs": "https://docs.rsshub.app/routes/programming",
+        "source": [
+          "/blog",
+          "/blog/*"
+        ],
+        "target": "/vllm/blog"
       }
     ]
   },
