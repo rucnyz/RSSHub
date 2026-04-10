@@ -171,6 +171,7 @@ export type RoutePath =
   | `/aliyun/notice/:type?`
   | `/aljazeera*`
   | `/ally/rail/:category?/:topic?`
+  | `/alphaxiv/trending`
   | `/alpinelinux/pkgs/:name/:routeParams?`
   | `/alternativeto/platform/:name/:routeParams?`
   | `/alternativeto/software/:name/:routeParams?`

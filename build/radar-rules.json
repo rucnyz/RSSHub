@@ -5053,6 +5053,20 @@
       }
     ]
   },
+  "alphaxiv.org": {
+    "_name": "AlphaXiv",
+    ".": [
+      {
+        "title": "Trending Papers",
+        "docs": "https://docs.rsshub.app/routes/journal",
+        "source": [
+          "/",
+          "/"
+        ],
+        "target": "/alphaxiv/trending"
+      }
+    ]
+  },
   "alternativeto.net": {
     "_name": "AlternativeTo",
     "www": [
